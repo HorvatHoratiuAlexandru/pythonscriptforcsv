@@ -1,4 +1,5 @@
 from company import constants
+from company import utils
 
 class Company:
     def __init__(self) -> None:
@@ -62,43 +63,57 @@ class Company:
         for key in fy_keys_to_remove:
             self.financial_years.pop(key)
 
-    def get_first_year(self):
-        first_year = 2024
+    def non_continuos_ifrs(self):
+        first_ifrs_occurence = self.get_ifrs_adoption_year()
+        if not first_ifrs_occurence:
+            return True
+        acc_standards = self.get_accounting_standards()
+        years = []
 
-        for key in self.variables:
-            if int(key) < first_year:
-                first_year = int(key)
-
-        return first_year     
-
+        for key in acc_standards:
+            years.append(int(key))
         
+        years.sort()
+
+        non_ifrs_years = []
+
+        for year in years:
+            if year >= first_ifrs_occurence:
+                if not acc_standards.get(str(year)) == "IFRS":
+                    return True
+            if year < first_ifrs_occurence:
+                non_ifrs_years.append(year)
+
+        if len(non_ifrs_years) < 1:
+            return True
+        
+        return False
 
 
+    def get_ifrs_adoption_year_mve(self):
+        year = self.get_ifrs_adoption_year()
+        c_variables = self.get_variables()
 
-   
+        shares_outstanding = utils.from_delimited_str_to_float(c_variables.get(str(year)).get(constants.COMMON_SHARES_OUTSTANDING))
+        price = utils.from_delimited_str_to_float(c_variables.get(str(year)).get(constants.PRICE))
 
-    
-    
-    
-    
+        return price * shares_outstanding
 
-    
-# LEFT HERE
     def get_ifrs_adoption_year(self):
         acc_standards = self.get_accounting_standards()
-        is_ifrs = False
-        year = self.get_first_year()
-        print(year)
-        while(year < 2024):
-            STANDARD = self.variables.get(str(year)).get(constants.ACC_STANDARD) if self.variables.get(str(year)) else None
-            if STANDARD and STANDARD == "IFRS":
-                is_ifrs = True
+        years = []
+
+        for key in acc_standards:
+            years.append(int(key))
+        
+        years.sort()
+
+        for year in years:
+            if acc_standards.get(str(year)) == "IFRS":
                 return year
-            year += 1
+        
         return None
         
-
-
 
     def get_accounting_standards(self):
         acc_standards = dict()

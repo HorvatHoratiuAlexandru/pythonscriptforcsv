@@ -27,8 +27,11 @@ class ComParser:
                         self.cell_dispatcher(self.headers[index], line[index])
                 self.current_company.trimm_missing_data_rows()
                 if not len(self.current_company.get_variables()) == 0:
-                    self.companies.append(self.current_company)
+                    if not self.current_company.non_continuos_ifrs():
+                        if self.current_company.get_ifrs_adoption_year() < 2007 and self.current_company.get_ifrs_adoption_year() > 2003:
+                            self.companies.append(self.current_company)
 
+                
         return self.companies    
 
     def read_headers(self):
