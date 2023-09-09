@@ -13,4 +13,6 @@ print(f"east no. : {len(east_comps)}")
 
 comp_matcher = CompanyMatcher(east_comps, west_comps)
 
-comp_matcher.exec()
+east_matched = comp_matcher.exec()
+
+east_p.write_to_files(east_matched)

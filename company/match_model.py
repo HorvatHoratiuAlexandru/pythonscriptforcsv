@@ -1,5 +1,8 @@
 from company.company_model import Company
+from company import utils
+
 from typing import List
+
 
 class CompanyMatcher:
 
@@ -12,12 +15,30 @@ class CompanyMatcher:
 
     def exec(self):
         matches_list:List[Company] = []
+        matched_list:List[Company] = []
+        matches_no = 0
         for comp in self.list_one:
             print(f"Working on company:")
             print(comp)
             matches_list = self.get_matched_industry_comps(comp, self.list_two)
             matches_list = self.get_matched_mve_comps(comp, matches_list)
-            matched_list = self.get_matched_longest_common_timeframe(comp, matches_list)
+            matched_c = self.get_matched_longest_common_timeframe(comp, matches_list)
+            if matched_c:
+                print(f"Company: {comp}")
+                print(f"Matched: {matched_c}")
+                matched_c.match = comp
+                comp.match = matched_c
+                self.list_two = [c for c in self.list_two if c.id != matched_c.id]
+                matched_list.append(comp)
+            print("----")
+        
+        for c in matched_list:
+            print(f"Match: {c.name} with {c.match}")
+            matches_no += 1
+
+        print(f"Matched: {matches_no} companies!")
+
+        return matched_list
 
 
     def get_matched_industry_comps(self, comp: Company, c_list: List[Company]):
@@ -49,27 +70,31 @@ class CompanyMatcher:
         return matched
     
     def get_matched_longest_common_timeframe(self, comp: Company, c_list: List[Company]):
-        m = len(str1)
-        n = len(str2)
-    
-        # Create a table to store the lengths of common substrings
-        # dp[i][j] will store the length of the common substring ending at str1[i-1] and str2[j-1]
-        dp = [[0] * (n + 1) for _ in range(m + 1)]
-    
-        # Variables to store the length of the longest common substring
+        comp_years = list(comp.get_variables().keys())
+        comp_mve = comp.get_ifrs_adoption_year_mve()
+        matched_id = ""
         max_length = 0
-        end_index = 0
-    
-        # Fill the dp table
-        for i in range(1, m + 1):
-            for j in range(1, n + 1):
-                if str1[i - 1] == str2[j - 1]:
-                    dp[i][j] = dp[i - 1][j - 1] + 1
-                    if dp[i][j] > max_length:
-                        max_length = dp[i][j]
-                        end_index = i
-    
-        # Extract the longest common substring
-        longest_substring = str1[end_index - max_length:end_index]
-    
-        return longest_substring
+        max_mve = 0
+
+        for c in c_list:
+            c_years = list(c.get_variables().keys())
+            longest_sub_array = utils.longest_common_array(comp_years, c_years)
+
+            if len(longest_sub_array) == max_length:
+                if not max_mve == utils.best_of_two_mves(comp_mve, max_mve, c.get_ifrs_adoption_year_mve()):
+                    matched_id = c.id
+                    max_mve = c.get_ifrs_adoption_year_mve()
+
+            if len(longest_sub_array) > max_length:
+                max_length = len(longest_sub_array)
+                matched_id = c.id
+                max_mve = c.get_ifrs_adoption_year_mve()
+        
+        for c in c_list:
+            if matched_id == c.id:
+                return c
+            
+        return None
+            
+            
+        

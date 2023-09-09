@@ -3,6 +3,8 @@ from company import constants
 from company.company_model import Company
 from company.variables.factory import VariableFactory
 
+from typing import List
+
 class ComParser:
     
 
@@ -32,7 +34,37 @@ class ComParser:
                             self.companies.append(self.current_company)
 
                 
-        return self.companies    
+        return self.companies
+
+    def write_to_files(self, matched_companies_list: List[Company]):
+        west_filename = "WEST-Final.csv"
+        east_filename = "EAST-Final.csv"
+        headers = constants.HEADERS
+
+        with open(east_filename, "w", newline="") as csv_file:
+            writer = csv.DictWriter(csv_file, headers)
+
+            writer.writeheader()
+
+            for c in matched_companies_list:
+                for row in c.to_rows():
+                    writer.writerow(row.to_dict())
+
+        print("east file created")
+
+        with open(west_filename, "w", newline="") as csv_file:
+            writer = csv.DictWriter(csv_file, headers)
+
+            writer.writeheader()
+
+            for c in matched_companies_list:
+                for row in c.match.to_rows():
+                    writer.writerow(row.to_dict())
+
+        print("west file created")
+
+
+
 
     def read_headers(self):
         with open(self.path, 'r') as csv_file:

@@ -1,3 +1,4 @@
+from company.company_row import CompanyRow
 from company import constants
 from company import utils
 
@@ -8,6 +9,7 @@ class Company:
         self.country = ""
         self.ipo = ""
         self.industry = ""
+        self.match = None
         self.financial_years = dict()
         self.variables = dict()
         
@@ -17,6 +19,37 @@ class Company:
     
     def __repr__(self) -> str:
         return self.__str__()
+    
+    def to_rows(self):
+        rows = []
+        variables = self.get_variables()
+
+        for key in variables:
+            row = CompanyRow()
+            row.id = self.id
+            row.match = self.match.id
+            row.name = self.name
+            row.country = self.country
+            row.industry = self.industry
+            row.ipo = self.ipo
+            row.year = key
+            row.balance_sheet_date = key
+            row.assets = variables.get(key).get(constants.ASSETS)
+            row.equity = variables.get(key).get(constants.EQUITY)
+            row.acc_standard = variables.get(key).get(constants.ACC_STANDARD)
+            row.price = variables.get(key).get(constants.PRICE)
+            row.common_shares_outstanding = variables.get(key).get(constants.COMMON_SHARES_OUTSTANDING)
+            row.net_income_before_extraordinary = variables.get(key).get(constants.NET_INCOME_BEFORE_EXTRAORDINARY)
+            row.net_cashflow_from_operating_activities = variables.get(key).get(constants.NET_CASHFLOW_FROM_OPERATING_ACTIVITIES)
+            row.common_equity = variables.get(key).get(constants.EQUITY)
+            row.book_value_per_share = variables.get(key).get(constants.BOOK_VALUE_PER_SHARE)
+#            row.total_return_ytd = variables.get(key).get(constants.TOTAL_RETURN_YTD)
+
+            rows.append(row)
+        
+        return rows
+
+            
 
     def set_id(self, id):
         self.id = id
@@ -117,6 +150,9 @@ class Company:
 
     def get_accounting_standards(self):
         acc_standards = dict()
+        print(self)
+        print(f"financial years:")
+        print(self.financial_years)
         for key in self.financial_years:
             value = self.variables[self.financial_years[key]].get(constants.ACC_STANDARD)
             if value:
