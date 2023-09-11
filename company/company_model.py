@@ -9,7 +9,7 @@ class Company:
         self.country = ""
         self.ipo = ""
         self.industry = ""
-        self.match = None
+        self.match: Company = None
         self.financial_years = dict()
         self.variables = dict()
         
@@ -96,6 +96,22 @@ class Company:
         for key in fy_keys_to_remove:
             self.financial_years.pop(key)
 
+    def trimm_self_and_mached_non_common_years(self):
+        self_years = list(self.get_variables().keys())
+        match_years = list(self.match.get_variables().keys())
+        matched_years = utils.longest_common_array(self_years, match_years)
+        
+
+        to_delete = []
+
+        for key in self.get_variables():
+            if key not in matched_years:
+                to_delete.append(key)
+
+        for key in to_delete:
+            self.variables.pop(key)
+
+
     def non_continuos_ifrs(self):
         first_ifrs_occurence = self.get_ifrs_adoption_year()
         if not first_ifrs_occurence:
@@ -150,9 +166,6 @@ class Company:
 
     def get_accounting_standards(self):
         acc_standards = dict()
-        print(self)
-        print(f"financial years:")
-        print(self.financial_years)
         for key in self.financial_years:
             value = self.variables[self.financial_years[key]].get(constants.ACC_STANDARD)
             if value:

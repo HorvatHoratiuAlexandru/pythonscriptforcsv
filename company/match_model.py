@@ -73,7 +73,7 @@ class CompanyMatcher:
         comp_years = list(comp.get_variables().keys())
         comp_mve = comp.get_ifrs_adoption_year_mve()
         matched_id = ""
-        max_length = 0
+        max_length = 1
         max_mve = 0
 
         for c in c_list:

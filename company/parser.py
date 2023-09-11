@@ -41,16 +41,20 @@ class ComParser:
         east_filename = "EAST-Final.csv"
         headers = constants.HEADERS
 
+        write_counter = 0
+
         with open(east_filename, "w", newline="") as csv_file:
             writer = csv.DictWriter(csv_file, headers)
 
             writer.writeheader()
 
             for c in matched_companies_list:
+                c.trimm_self_and_mached_non_common_years()
+                write_counter += 1
                 for row in c.to_rows():
                     writer.writerow(row.to_dict())
 
-        print("east file created")
+        print(f"east file created")
 
         with open(west_filename, "w", newline="") as csv_file:
             writer = csv.DictWriter(csv_file, headers)
@@ -58,6 +62,7 @@ class ComParser:
             writer.writeheader()
 
             for c in matched_companies_list:
+                c.match.trimm_self_and_mached_non_common_years()
                 for row in c.match.to_rows():
                     writer.writerow(row.to_dict())
 

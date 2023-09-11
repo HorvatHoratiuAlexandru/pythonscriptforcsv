@@ -12,7 +12,7 @@ def longest_common_array(arr_one, arr_two):
     # Variables to store the length of the longest common substring
     max_length = 0
     end_index = 0
-
+    longest_substring = []
     # Fill the dp table
     for i in range(1, m + 1):
         for j in range(1, n + 1):
@@ -21,10 +21,11 @@ def longest_common_array(arr_one, arr_two):
                 if dp[i][j] > max_length:
                     max_length = dp[i][j]
                     end_index = i
+                    if "2000" in arr_one[end_index - max_length:end_index] or "2001" in arr_one[end_index - max_length:end_index] or "1999" in arr_one[end_index - max_length:end_index]:
+                        longest_substring = arr_one[end_index - max_length:end_index]
 
     # Extract the longest common substring
-    longest_substring = arr_one[end_index - max_length:end_index]
-
+    #longest_substring = arr_one[end_index - max_length:end_index]
     return longest_substring
 
 
