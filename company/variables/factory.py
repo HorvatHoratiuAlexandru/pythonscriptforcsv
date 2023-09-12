@@ -36,8 +36,8 @@ class VariableFactory:
             return CommonEquityModel(value, fy)
         elif constants.BOOK_VALUE_PER_SHARE in header:
             return BookValuePerShareModel(value, fy)
-        #elif constants.TOTAL_RETURN_YTD in header:
-        #    return TotalReturnModel(value, fy)
+        elif constants.TOTAL_RETURN_YTD in header:
+           return TotalReturnModel(value, fy)
         else:
             return VariableModel("UNKNOWN_VAR", value, fy)
         

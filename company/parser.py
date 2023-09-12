@@ -22,18 +22,18 @@ class ComParser:
             csv_reader = csv.reader(csv_file)
             next(csv_reader)
             for line in csv_reader:
-                self.current_company = Company()
+                
 
+                self.current_company = Company()
                 for index in range(len(self.headers)):
                     if line[index]:
                         self.cell_dispatcher(self.headers[index], line[index])
+
                 self.current_company.trimm_missing_data_rows()
                 if not len(self.current_company.get_variables()) == 0:
                     if not self.current_company.non_continuos_ifrs():
                         if self.current_company.get_ifrs_adoption_year() < 2007 and self.current_company.get_ifrs_adoption_year() > 2003:
                             self.companies.append(self.current_company)
-
-                
         return self.companies
 
     def write_to_files(self, matched_companies_list: List[Company]):

@@ -20,7 +20,7 @@ class CompanyRow:
         self.net_cashflow_from_operating_activities = ""
         self.common_equity = ""
         self.book_value_per_share = ""
-#        self.total_return_ytd = ""
+        self.total_return_ytd = ""
 
     def to_dict(self):
         return {
@@ -41,5 +41,5 @@ class CompanyRow:
             constants.NET_CASHFLOW_FROM_OPERATING_ACTIVITIES: self.net_cashflow_from_operating_activities,
             constants.COMMON_EQUITY: self.common_equity,
             constants.BOOK_VALUE_PER_SHARE: self.book_value_per_share,
-#            constants.TOTAL_RETURN_YTD: self.total_return_ytd,
+            constants.TOTAL_RETURN_YTD: self.total_return_ytd,
         }

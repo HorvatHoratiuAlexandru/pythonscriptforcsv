@@ -60,9 +60,9 @@ class CompanyMatcher:
         for c in c_list:
             c_mve:float = c.get_ifrs_adoption_year_mve()
 
-            diff: float = abs(comp_mve - c_mve)
+            diff: float = abs(c_mve - comp_mve)
 
-            if 0.5 * comp_mve > diff:
+            if 0.5 * comp_mve <= diff:
                 matched.append(c)
         
         print(f"matched {len(matched)} companies by mve in ifrs adoption year")

@@ -43,7 +43,7 @@ class Company:
             row.net_cashflow_from_operating_activities = variables.get(key).get(constants.NET_CASHFLOW_FROM_OPERATING_ACTIVITIES)
             row.common_equity = variables.get(key).get(constants.EQUITY)
             row.book_value_per_share = variables.get(key).get(constants.BOOK_VALUE_PER_SHARE)
-#            row.total_return_ytd = variables.get(key).get(constants.TOTAL_RETURN_YTD)
+            row.total_return_ytd = variables.get(key).get(constants.TOTAL_RETURN_YTD)
 
             rows.append(row)
         
@@ -70,6 +70,8 @@ class Company:
         self.financial_years[fy] = date.split("/")[2]
     
     def add_variable(self, variable_model):
+        if not variable_model:
+            return
         if not self.financial_years.get(variable_model.fy):
             return
         if not self.variables.get(self.financial_years[variable_model.fy]):
@@ -85,6 +87,7 @@ class Company:
                 if coll not in self.variables[key]:
                     keys_to_remove.append(key)
                     break
+                
         
         for key in keys_to_remove:
             self.variables.pop(key)
@@ -95,6 +98,7 @@ class Company:
 
         for key in fy_keys_to_remove:
             self.financial_years.pop(key)
+
 
     def trimm_self_and_mached_non_common_years(self):
         self_years = list(self.get_variables().keys())

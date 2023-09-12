@@ -21,7 +21,7 @@ def longest_common_array(arr_one, arr_two):
                 if dp[i][j] > max_length:
                     max_length = dp[i][j]
                     end_index = i
-                    if "2000" in arr_one[end_index - max_length:end_index] or "2001" in arr_one[end_index - max_length:end_index] or "1999" in arr_one[end_index - max_length:end_index]:
+                    if "2000" in arr_one[end_index - max_length:end_index] or "2001" in arr_one[end_index - max_length:end_index]:
                         longest_substring = arr_one[end_index - max_length:end_index]
 
     # Extract the longest common substring
