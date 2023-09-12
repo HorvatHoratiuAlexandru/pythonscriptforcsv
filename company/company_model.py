@@ -44,6 +44,12 @@ class Company:
             row.common_equity = variables.get(key).get(constants.EQUITY)
             row.book_value_per_share = variables.get(key).get(constants.BOOK_VALUE_PER_SHARE)
             row.total_return_ytd = variables.get(key).get(constants.TOTAL_RETURN_YTD)
+            row.net_income_per_share = variables.get(key).get(constants.NET_INCOME_PER_SHARE) if variables.get(key).get(constants.NET_INCOME_PER_SHARE) else "NA"
+            row.delta_ni =  variables.get(key).get(constants.DELTA_NI) if  variables.get(key).get(constants.DELTA_NI) else "NA"
+            row.ni_per_price_laged = variables.get(key).get(constants.NI_PER_LAGED_PRICE) if variables.get(key).get(constants.NI_PER_LAGED_PRICE) else "NA"
+            row.delta_ni_per_price_laged = variables.get(key).get(constants.DELTA_NI_PER_LAGED_PRICE) if variables.get(key).get(constants.DELTA_NI_PER_LAGED_PRICE) else "NA"
+            row.loss = variables.get(key).get(constants.LOSS) if not variables.get(key).get(constants.LOSS) == None else "NA"
+
 
             rows.append(row)
         
@@ -189,3 +195,109 @@ class Company:
             print(f"{k}: {v}")
 
     
+# Secound part, variable calculations
+    def calculate_variables_needed(self):
+        self.calculate_net_income_per_share()
+        self.calculate_delta_net_income_per_share()
+        self.calculate_net_income_per_price_laged()
+        self.calculate_delta_net_income_price_laged()
+        self.calculate_loss()
+
+    def calculate_net_income_per_share(self):
+        years = []
+        
+        for key in self.variables:
+            years.append(int(key))
+
+        years.sort()
+
+        for year in years:
+            net_income = self.variables.get(str(year)).get(constants.NET_INCOME_BEFORE_EXTRAORDINARY)
+            shares = self.variables.get(str(year)).get(constants.COMMON_SHARES_OUTSTANDING)
+
+            if net_income and shares and utils.from_delimited_str_to_float(shares) > 1000:
+                self.variables[str(year)][constants.NET_INCOME_PER_SHARE] = utils.from_delimited_str_to_float(net_income) / utils.from_delimited_str_to_float(shares)
+
+    def calculate_delta_net_income_per_share(self):
+        years = []
+
+        for key in self.variables:
+            years.append(int(key))
+
+        years.sort()
+
+        for year in years:
+            laged_year = self.variables.get(str(year - 1))
+            NI_LAG = None
+            if laged_year:
+                NI_LAG = laged_year.get(constants.NET_INCOME_PER_SHARE)
+            NI = self.variables.get(str(year)).get(constants.NET_INCOME_PER_SHARE)
+
+            if NI_LAG and NI:
+                self.variables[str(year)][constants.DELTA_NI] = abs(NI - NI_LAG)
+            
+
+    def calculate_loss(self):
+        years = []
+
+        for key in self.variables:
+            years.append(int(key))
+
+        years.sort()
+        
+        for year in years:
+            laged_year = self.variables.get(str(year - 1))
+            price_laged = None
+            ni = None
+
+            if laged_year:
+                price_laged = laged_year.get(constants.PRICE)
+            ni = self.variables.get(str(year)).get(constants.NET_INCOME_PER_SHARE)
+
+            if ni and price_laged and not utils.from_delimited_str_to_float(price_laged) == 0:
+                
+                if ni / utils.from_delimited_str_to_float(price_laged) < 0:
+                    self.variables[str(year)][constants.LOSS] = 1
+                else:
+                    self.variables[str(year)][constants.LOSS] = 0
+
+    def calculate_net_income_per_price_laged(self):
+        years = []
+
+        for key in self.variables:
+            years.append(int(key))
+
+        years.sort()
+        
+        for year in years:
+            laged_year = self.variables.get(str(year - 1))
+            price_laged = None
+            ni = None
+
+            if laged_year:
+                price_laged = laged_year.get(constants.PRICE)
+            ni = self.variables.get(str(year)).get(constants.NET_INCOME_PER_SHARE)
+
+            if ni and price_laged and not utils.from_delimited_str_to_float(price_laged) == 0:
+                self.variables[str(year)][constants.NI_PER_LAGED_PRICE] = ni / utils.from_delimited_str_to_float(price_laged)
+
+    def calculate_delta_net_income_price_laged(self):
+        years = []
+
+        for key in self.variables:
+            years.append(int(key))
+
+        years.sort()
+        
+        for year in years:
+            laged_year = self.variables.get(str(year - 1))
+            price_laged = None
+            delta_ni = None
+
+            if laged_year:
+                price_laged = laged_year.get(constants.PRICE)
+            delta_ni = self.variables.get(str(year)).get(constants.DELTA_NI)
+
+            if delta_ni and price_laged and not utils.from_delimited_str_to_float(price_laged) == 0:
+                print("created var")
+                self.variables[str(year)][constants.DELTA_NI_PER_LAGED_PRICE] = delta_ni / utils.from_delimited_str_to_float(price_laged)

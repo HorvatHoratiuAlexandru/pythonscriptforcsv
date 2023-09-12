@@ -29,6 +29,7 @@ class ComParser:
                     if line[index]:
                         self.cell_dispatcher(self.headers[index], line[index])
 
+                self.current_company.calculate_variables_needed()
                 self.current_company.trimm_missing_data_rows()
                 if not len(self.current_company.get_variables()) == 0:
                     if not self.current_company.non_continuos_ifrs():

@@ -21,6 +21,11 @@ class CompanyRow:
         self.common_equity = ""
         self.book_value_per_share = ""
         self.total_return_ytd = ""
+        self.net_income_per_share = ""
+        self.delta_ni = ""
+        self.loss = ""
+        self.ni_per_price_laged = ""
+        self.delta_ni_per_price_laged = ""
 
     def to_dict(self):
         return {
@@ -42,4 +47,9 @@ class CompanyRow:
             constants.COMMON_EQUITY: self.common_equity,
             constants.BOOK_VALUE_PER_SHARE: self.book_value_per_share,
             constants.TOTAL_RETURN_YTD: self.total_return_ytd,
+            constants.NET_INCOME_PER_SHARE: self.net_income_per_share,
+            constants.DELTA_NI: self.delta_ni,
+            constants.LOSS: self.loss,
+            constants.NI_PER_LAGED_PRICE: self.ni_per_price_laged,
+            constants.DELTA_NI_PER_LAGED_PRICE: self.delta_ni_per_price_laged,
         }
