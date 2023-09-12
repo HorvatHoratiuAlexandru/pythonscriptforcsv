@@ -26,6 +26,8 @@ class CompanyRow:
         self.loss = ""
         self.ni_per_price_laged = ""
         self.delta_ni_per_price_laged = ""
+        self.ni_per_laged_ta = ""
+        self.cf = ""
 
     def to_dict(self):
         return {
@@ -52,4 +54,6 @@ class CompanyRow:
             constants.LOSS: self.loss,
             constants.NI_PER_LAGED_PRICE: self.ni_per_price_laged,
             constants.DELTA_NI_PER_LAGED_PRICE: self.delta_ni_per_price_laged,
+            constants.NI_PER_LAGED_TA: self.ni_per_laged_ta,
+            constants.CF: self.cf,
         }

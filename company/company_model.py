@@ -49,7 +49,8 @@ class Company:
             row.ni_per_price_laged = variables.get(key).get(constants.NI_PER_LAGED_PRICE) if variables.get(key).get(constants.NI_PER_LAGED_PRICE) else "NA"
             row.delta_ni_per_price_laged = variables.get(key).get(constants.DELTA_NI_PER_LAGED_PRICE) if variables.get(key).get(constants.DELTA_NI_PER_LAGED_PRICE) else "NA"
             row.loss = variables.get(key).get(constants.LOSS) if not variables.get(key).get(constants.LOSS) == None else "NA"
-
+            row.ni_per_laged_ta = variables.get(key).get(constants.NI_PER_LAGED_TA) if not variables.get(key).get(constants.NI_PER_LAGED_TA) == None else "NA"
+            row.cf = variables.get(key).get(constants.CF) if not variables.get(key).get(constants.CF) == None else "NA"
 
             rows.append(row)
         
@@ -202,6 +203,8 @@ class Company:
         self.calculate_net_income_per_price_laged()
         self.calculate_delta_net_income_price_laged()
         self.calculate_loss()
+        self.calculate_net_income_per_ta_laged()
+        self.calculate_cf()
 
     def calculate_net_income_per_share(self):
         years = []
@@ -299,5 +302,49 @@ class Company:
             delta_ni = self.variables.get(str(year)).get(constants.DELTA_NI)
 
             if delta_ni and price_laged and not utils.from_delimited_str_to_float(price_laged) == 0:
-                print("created var")
                 self.variables[str(year)][constants.DELTA_NI_PER_LAGED_PRICE] = delta_ni / utils.from_delimited_str_to_float(price_laged)
+
+    def calculate_net_income_per_ta_laged(self):
+        years = []
+
+        for key in self.variables:
+            years.append(int(key))
+
+        years.sort()
+        
+        for year in years:
+            laged_year = self.variables.get(str(year - 1))
+            laged_year_two = self.variables.get(str(year - 2))
+            ta_laged = None
+            ni_laged = None
+
+            if laged_year_two:
+                ta_laged = laged_year_two.get(constants.ASSETS)
+            if laged_year:
+                ni_laged = laged_year.get(constants.NET_INCOME_PER_SHARE)
+
+            if ni_laged and ta_laged and not utils.from_delimited_str_to_float(ta_laged) == 0:
+                self.variables[str(year)][constants.NI_PER_LAGED_TA] = ni_laged / utils.from_delimited_str_to_float(ta_laged)
+
+
+    def calculate_cf(self):
+        years = []
+
+        for key in self.variables:
+            years.append(int(key))
+
+        years.sort()
+
+        for year in years:
+            laged_year = self.variables.get(str(year - 1))
+            ta_laged = None
+            cash_flow = None
+
+            if laged_year:
+                ta_laged = laged_year.get(constants.ASSETS)
+            cash_flow = self.variables.get(str(year)).get(constants.NET_CASHFLOW_FROM_OPERATING_ACTIVITIES)
+
+            if cash_flow and ta_laged and not utils.from_delimited_str_to_float(ta_laged) == 0:
+                self.variables[str(year)][constants.CF] = utils.from_delimited_str_to_float(cash_flow) / utils.from_delimited_str_to_float(ta_laged)
+
+    
