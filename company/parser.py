@@ -44,14 +44,30 @@ class ComParser:
 
         write_counter = 0
 
+        for c in matched_companies_list:
+            c.trimm_self_and_mached_non_common_years()
+        for c in matched_companies_list:
+            c.match.trimm_self_and_mached_non_common_years()
+
+        for c in matched_companies_list:
+            write_counter = write_counter + c.trimm_self_NA()
+
+        print(f"east NAs: {write_counter}")
+
+        write_counter = 0
+
+        for c in matched_companies_list:
+            write_counter = write_counter + c.match.trimm_self_NA()
+        
+        print(f"west NAs: {write_counter}")
+        
+
         with open(east_filename, "w", newline="") as csv_file:
             writer = csv.DictWriter(csv_file, headers)
 
             writer.writeheader()
 
             for c in matched_companies_list:
-                c.trimm_self_and_mached_non_common_years()
-                write_counter += 1
                 for row in c.to_rows():
                     writer.writerow(row.to_dict())
 
@@ -63,7 +79,6 @@ class ComParser:
             writer.writeheader()
 
             for c in matched_companies_list:
-                c.match.trimm_self_and_mached_non_common_years()
                 for row in c.match.to_rows():
                     writer.writerow(row.to_dict())
 

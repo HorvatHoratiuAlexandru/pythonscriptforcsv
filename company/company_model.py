@@ -114,14 +114,33 @@ class Company:
         
 
         to_delete = []
+        variables = self.get_variables()
 
-        for key in self.get_variables():
+        for key in variables:
             if key not in matched_years:
+              
                 to_delete.append(key)
+            
+        
 
         for key in to_delete:
             self.variables.pop(key)
 
+    def trimm_self_NA(self):
+        to_delete = []
+        variables = self.get_variables()
+        NA_count = 0
+
+        for key in variables:
+            if constants.NI_PER_LAGED_TA not in variables.get(key).keys():
+                NA_count += 1
+                to_delete.append(key)
+            
+    
+        for key in to_delete:
+            self.variables.pop(key)
+
+        return NA_count
 
     def non_continuos_ifrs(self):
         first_ifrs_occurence = self.get_ifrs_adoption_year()
@@ -196,7 +215,7 @@ class Company:
             print(f"{k}: {v}")
 
     
-# Secound part, variable calculations
+# Second part, variable calculations
     def calculate_variables_needed(self):
         self.calculate_net_income_per_share()
         self.calculate_delta_net_income_per_share()
