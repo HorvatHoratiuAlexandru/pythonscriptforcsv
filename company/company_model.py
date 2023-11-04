@@ -177,6 +177,14 @@ class Company:
         price = utils.from_delimited_str_to_float(c_variables.get(str(year)).get(constants.PRICE))
 
         return price * shares_outstanding
+    
+    def get_year_mve(self, year):
+        c_variables = self.get_variables()
+
+        shares_outstanding = utils.from_delimited_str_to_float(c_variables.get(str(year)).get(constants.COMMON_SHARES_OUTSTANDING))
+        price = utils.from_delimited_str_to_float(c_variables.get(str(year)).get(constants.PRICE))
+
+        return price * shares_outstanding
 
     def get_ifrs_adoption_year(self):
         acc_standards = self.get_accounting_standards()

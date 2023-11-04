@@ -1,6 +1,9 @@
 from company.company_model import Company
 from company import utils
 
+import math
+import time
+
 from typing import List
 
 
@@ -21,8 +24,8 @@ class CompanyMatcher:
             print(f"Working on company:")
             print(comp)
             matches_list = self.get_matched_industry_comps(comp, self.list_two)
-            matches_list = self.get_matched_mve_comps(comp, matches_list)
-            matched_c = self.get_matched_longest_common_timeframe(comp, matches_list)
+            # matches_list = self.get_matched_mve_comps(comp, matches_list)
+            matched_c = self.get_matched_longest_common_timeframe_and_mve(comp, matches_list)
             if matched_c:
                 print(f"Company: {comp}")
                 print(f"Matched: {matched_c}")
@@ -69,9 +72,12 @@ class CompanyMatcher:
 
         return matched
     
+    def if_mve_match(self, to_match_mve, matching_mve):
+        pass
+    
     def get_matched_longest_common_timeframe(self, comp: Company, c_list: List[Company]):
         comp_years = list(comp.get_variables().keys())
-        comp_mve = comp.get_ifrs_adoption_year_mve()
+        comp_mve = 0
         matched_id = ""
         max_length = 1
         max_mve = 0
@@ -80,21 +86,61 @@ class CompanyMatcher:
             c_years = list(c.get_variables().keys())
             longest_sub_array = utils.longest_common_array(comp_years, c_years)
 
+            if longest_sub_array:
+                longest_sub_array.sort()
+                first_common_year = longest_sub_array[0]
+                comp_mve = comp.get_year_mve(first_common_year)
+
             if len(longest_sub_array) == max_length:
-                if not max_mve == utils.best_of_two_mves(comp_mve, max_mve, c.get_ifrs_adoption_year_mve()):
+                if not max_mve == utils.best_of_two_mves(comp_mve, max_mve, c.get_year_mve(first_common_year)):
                     matched_id = c.id
-                    max_mve = c.get_ifrs_adoption_year_mve()
+                    max_mve = c.get_year_mve(first_common_year)
 
             if len(longest_sub_array) > max_length:
                 max_length = len(longest_sub_array)
                 matched_id = c.id
-                max_mve = c.get_ifrs_adoption_year_mve()
+                max_mve = c.get_year_mve(first_common_year)
         
         for c in c_list:
             if matched_id == c.id:
                 return c
             
         return None
+    
+    def get_matched_longest_common_timeframe_and_mve(self, comp: Company, c_list: List[Company]):
+        comp_years = list(comp.get_variables().keys())
+        vec2_matches: List[List[float, Company]] = []
+
+        for c in c_list:
+            c_years = list(c.get_variables().keys())
+            longest_sub_array = utils.longest_common_array(comp_years, c_years)
+            if longest_sub_array:
+                
+                longest_sub_array.sort()
+                c_mve = c.get_year_mve(longest_sub_array[0])
+                comp_mve = comp.get_year_mve(longest_sub_array[0])                
+
+                if 0.6*comp_mve >= abs(comp_mve-c_mve):
+                    vec2_matches.append([self.vec_magnitude([1 - abs(comp_mve-c_mve)/(comp_mve+c_mve)/2, len(longest_sub_array)]), c])
+                
+                    
             
-            
+        if vec2_matches:
+            matched_comp = max(vec2_matches, key=lambda x: x[0])
+            print(f'matched {comp.name} with {matched_comp[1].name} with magnitude: {matched_comp[0]}')
+            return(matched_comp[1])
         
+        return None
+        
+        
+
+    def vec_dot_product(self, vec1, vec2):
+        assert len(vec1) == len(vec2)
+
+        return sum(vec1_i * vec2_i for vec1_i, vec2_i in zip(vec1,vec2))
+
+    def vec_sum_of_squares(self, vec1):
+        return self.vec_dot_product(vec1,vec1)
+    
+    def vec_magnitude(self, vec1):
+        return math.sqrt(self.vec_sum_of_squares(vec1))
